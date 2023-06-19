@@ -21,12 +21,22 @@ const storage: LocalConfig["storage"] | GitHubConfig["storage"] =
 export default config({
   storage,
   collections: {
-    posts: collection({
-      label: "Posts",
-      path: "content/posts/*/",
+    work: collection({
+      label: "Work",
+      path: "content/work/*/",
       slugField: "slug",
       schema: {
         title: fields.text({ label: "Title" }),
+        description: fields.text({ label: "Description" }),
+        thumbnail: fields.image({
+          // This will output the images in the "public" directory
+          directory: "public/work/thumbs",
+          publicPath: "/work/thumbs",
+          label: "Thumbnail",
+          validation: {
+            isRequired: true,
+          },
+        }),
         slug: fields.text({
           label: "Slug",
           validation: { length: { min: 4 } },
@@ -50,10 +60,10 @@ export default config({
             }),
           },
         }),
-        authors: fields.array(fields.text({ label: "Name" }), {
-          label: "Authors",
-          itemLabel: (props) => props.value,
-        }),
+        // authors: fields.array(fields.text({ label: "Name" }), {
+        //   label: "Authors",
+        //   itemLabel: (props) => props.value,
+        // }),
       },
     }),
   },
