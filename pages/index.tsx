@@ -35,16 +35,21 @@ export default function Index({
         <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
           {works.map((work) => {
             return (
-              <li className="space-y-2" key={work.title}>
-                <div className="aspect-video bg-gray-200 relative">
-                  <Image
-                    className="object-cover"
-                    alt={work.title}
-                    src={work.thumbnail}
-                    fill
-                  />
-                </div>
-                <h2>{work.title}</h2>
+              <li key={work.title}>
+                <Link
+                  className="hover:underline space-y-2"
+                  href={`/work/${work.slug}`}
+                >
+                  <div className="aspect-video bg-gray-200 relative">
+                    <Image
+                      className="object-cover"
+                      alt={work.title}
+                      src={work.thumbnail}
+                      fill
+                    />
+                  </div>
+                  <h2 className="text-lg">{work.title}</h2>
+                </Link>
               </li>
             );
           })}
