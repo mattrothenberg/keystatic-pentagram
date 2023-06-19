@@ -97,10 +97,7 @@ export default function WorkDetail({
       }
     );
 
-    // window.scrollTo(0, 0);
     navigate.push(nextWork.slug);
-    // setPageState("idle");
-    // document.body.style.overflow = "visible";
   };
 
   const variants = {
@@ -115,7 +112,6 @@ export default function WorkDetail({
   return (
     <div className="relative">
       <motion.div
-        className="py-8"
         variants={variants}
         animate={pageState}
         initial={false}
@@ -130,32 +126,36 @@ export default function WorkDetail({
           description={work.description}
           image={work.thumbnail}
         />{" "}
-        <motion.div
-          className="py-8"
-          variants={variants}
-          animate={pageState}
-          initial={{
-            opacity: 0,
-          }}
-          transition={{
-            duration: 0.85,
-            type: "spring",
-            bounce: 0,
-          }}
-          onAnimationComplete={() => {
-            if (pageState === "idle") return;
-            animate();
-          }}
-        >
-          <div className="grid grid-cols-2 gap-8">
-            {Array.from({ length: 25 }).map((_, i) => {
-              return <div key={i} className="aspect-video bg-gray-200"></div>;
-            })}
-          </div>
-        </motion.div>
+      </motion.div>
+      <motion.div
+        className="py-8"
+        variants={variants}
+        animate={pageState}
+        initial={{
+          opacity: 0,
+        }}
+        transition={{
+          duration: 0.85,
+          type: "spring",
+          bounce: 0,
+        }}
+        onAnimationComplete={() => {
+          if (pageState === "idle") return;
+          animate();
+        }}
+      >
+        <div className="grid grid-cols-2 gap-8">
+          {Array.from({ length: 25 }).map((_, i) => {
+            return <div key={i} className="aspect-video bg-gray-200"></div>;
+          })}
+        </div>
+        <div className="border-t mt-12 pt-6">
+          <p className="font-normal text-lg text-red-600 select-none">
+            Next Project
+          </p>
+        </div>
       </motion.div>
       <div
-        className="pt-8"
         style={{
           maxHeight: 320,
           overflow: "hidden",
@@ -201,9 +201,11 @@ function WorkHeader({
   truncated = false,
   onNavigate = () => {},
 }: WorkHeaderProps) {
+  const [animating, setAnimating] = useState(false);
   const handleClick: MouseEventHandler<HTMLAnchorElement> = (e) => {
     // todo: intercept if user is holding the command key.
     // we want to open the link in a new tab if so.
+    setAnimating(true);
     e.preventDefault();
     onNavigate();
   };
@@ -220,9 +222,9 @@ function WorkHeader({
       }}
     >
       <div className="space-y-4">
-        <div className="grid lg:grid-cols-2">
+        <div className="grid lg:grid-cols-2 pb-8 pt-16">
           <div>
-            <h1 aria-hidden={truncated} className="text-4xl font-medium">
+            <h1 aria-hidden={truncated} className="text-4xl font-semibold">
               {title}
             </h1>
           </div>
@@ -230,10 +232,14 @@ function WorkHeader({
             <p className="text-2xl font-medium">{description}</p>
           </div>
         </div>
-        <div className="aspect-video bg-gray-200 relative">
+        <div
+          className={`aspect-video bg-gray-200 relative overflow-hidden ${
+            truncated && !animating ? "group" : ""
+          }`}
+        >
           <Image
             priority={!truncated}
-            className="object-cover"
+            className="object-cover transform group-hover:scale-125 transition-transform will-change-transform duration-500"
             alt={title}
             src={image}
             fill
