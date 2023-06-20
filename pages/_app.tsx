@@ -1,17 +1,15 @@
-import "../style.css";
-import type { AppProps } from "next/app";
 import { motion } from "framer-motion";
+import type { AppProps } from "next/app";
 import { Inter } from "next/font/google";
-import { usePrevious } from "../hooks";
-import { useParams, usePathname } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { Header } from "../components/header";
-import { match, P } from "ts-pattern";
-import { useRouter } from "next/router";
 import { useSiteStore } from "../store";
+import "../style.css";
 
 const interFont = Inter({
   weight: "variable",
-  subsets: ["latin-ext"],
+  subsets: ["latin"],
+  display: "swap",
 });
 
 export default function MyApp({ Component, pageProps }: AppProps) {
@@ -21,19 +19,17 @@ export default function MyApp({ Component, pageProps }: AppProps) {
   );
 
   return (
-    <>
+    <div className={interFont.className}>
       <Header />
-      <div className={`${interFont.className}`}>
-        <motion.div
-          key={pathname}
-          exit={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          initial={disableGlobalTransition ? false : { opacity: 0 }}
-          transition={{ type: "spring", duration: 2 }}
-        >
-          <Component {...pageProps} />
-        </motion.div>
-      </div>
-    </>
+      <motion.div
+        key={pathname}
+        exit={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        initial={disableGlobalTransition ? false : { opacity: 0 }}
+        transition={{ type: "spring", duration: 2 }}
+      >
+        <Component {...pageProps} />
+      </motion.div>
+    </div>
   );
 }

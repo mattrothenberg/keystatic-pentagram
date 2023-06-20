@@ -49,3 +49,42 @@ p:empty {
     display: block;
   }
 }
+
+.backdrop {
+  background-color: white;
+  opacity: 0;
+  transition-property: opacity;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+.dialog {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  margin: auto;
+  height: 100vh;
+  transform-origin: center;
+  opacity: 0;
+  transition-property: opacity;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+.backdrop[data-enter] {
+  opacity: 1;
+}
+
+.dialog[data-enter] {
+  opacity: 1;
+}
+
+.swiper-pagination-progressbar {
+  bottom: 0 !important;
+  top: initial !important;
+}
+
+.dialog {
+  --swiper-navigation-color: theme("colors.gray.400");
+  --swiper-theme-color: theme("colors.brand");
+}

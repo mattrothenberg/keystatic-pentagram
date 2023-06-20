@@ -9,7 +9,11 @@ module.exports = {
     container: {
       center: true,
     },
-    extend: {},
+    extend: {
+      colors: {
+        brand: "#E61428",
+      },
+    },
   },
   plugins: [],
 };
