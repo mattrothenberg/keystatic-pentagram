@@ -1,5 +1,5 @@
 import { omit, pick } from "radash";
-import { motion, useAnimate, useMotionValue } from "framer-motion";
+import { motion, useAnimate } from "framer-motion";
 import Image from "next/image";
 import { GetStaticPropsContext, InferGetStaticPropsType } from "next";
 import { createReader } from "@keystatic/core/reader";
@@ -8,6 +8,15 @@ import { ConditionalWrap } from "../../components/conditional-wrap";
 import Link from "next/link";
 import { MouseEventHandler, useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
+
+const variants = {
+  idle: {
+    opacity: 1,
+  },
+  navigating: {
+    opacity: 0,
+  },
+};
 
 export async function getStaticPaths() {
   const reader = createReader(process.cwd(), config);
@@ -27,6 +36,16 @@ export async function getStaticPaths() {
   };
 }
 
+function categoryFormatter(category: string) {
+  // the category will come in like "brand-identity" and we want it to be "Brand Identity".
+  return category
+    .split("-")
+    .map((word) => {
+      return word[0].toUpperCase() + word.slice(1);
+    })
+    .join(" ");
+}
+
 export async function getStaticProps(context: GetStaticPropsContext) {
   const slug = context.params?.slug as string;
   const reader = createReader(process.cwd(), config);
@@ -44,7 +63,12 @@ export async function getStaticProps(context: GetStaticPropsContext) {
     props: {
       nextWork: {
         slug: nextWork.slug,
-        ...pick(nextWork.entry, ["description", "title", "thumbnail"]),
+        ...pick(nextWork.entry, [
+          "description",
+          "title",
+          "thumbnail",
+          "categories",
+        ]),
       },
       work: {
         ...omit(work.entry, ["content"]),
@@ -94,19 +118,11 @@ export default function WorkDetail({
       {
         type: "spring",
         bounce: 0,
+        damping: 20,
       }
     );
 
     navigate.push(nextWork.slug);
-  };
-
-  const variants = {
-    idle: {
-      opacity: 1,
-    },
-    navigating: {
-      opacity: 0,
-    },
   };
 
   return (
@@ -125,6 +141,7 @@ export default function WorkDetail({
           title={work.title}
           description={work.description}
           image={work.thumbnail}
+          categories={work.categories}
         />{" "}
       </motion.div>
       <motion.div
@@ -135,7 +152,7 @@ export default function WorkDetail({
           opacity: 0,
         }}
         transition={{
-          duration: 0.85,
+          duration: 0.75,
           type: "spring",
           bounce: 0,
         }}
@@ -145,7 +162,7 @@ export default function WorkDetail({
         }}
       >
         <div className="grid grid-cols-2 gap-8">
-          {Array.from({ length: 25 }).map((_, i) => {
+          {Array.from({ length: 16 }).map((_, i) => {
             return <div key={i} className="aspect-video bg-gray-200"></div>;
           })}
         </div>
@@ -165,6 +182,7 @@ export default function WorkDetail({
         <WorkHeader
           truncated
           onNavigate={handleNextWorkNavigate}
+          categories={nextWork.categories}
           slug={nextWork.slug}
           title={nextWork.title}
           description={nextWork.description}
@@ -191,6 +209,7 @@ type WorkHeaderProps = {
   title: string;
   description: string;
   image: string;
+  categories: readonly string[];
 } & (TruncatedWorkHeader | DefaultWorkHeader);
 
 function WorkHeader({
@@ -199,12 +218,15 @@ function WorkHeader({
   image,
   slug = "",
   truncated = false,
+  categories,
   onNavigate = () => {},
 }: WorkHeaderProps) {
   const [animating, setAnimating] = useState(false);
   const handleClick: MouseEventHandler<HTMLAnchorElement> = (e) => {
-    // todo: intercept if user is holding the command key.
-    // we want to open the link in a new tab if so.
+    // Check if user is holding the command key. Allow them to open the link in a new tab.
+    if (e.metaKey) {
+      return;
+    }
     setAnimating(true);
     e.preventDefault();
     onNavigate();
@@ -227,6 +249,13 @@ function WorkHeader({
             <h1 aria-hidden={truncated} className="text-4xl font-semibold">
               {title}
             </h1>
+            <p className="text-gray-500 text-xl mt-2">
+              {categories
+                .map((category) => {
+                  return categoryFormatter(category);
+                })
+                .join(", ")}
+            </p>
           </div>
           <div>
             <p className="text-2xl font-medium">{description}</p>

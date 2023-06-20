@@ -28,6 +28,16 @@ export default config({
       schema: {
         title: fields.text({ label: "Title" }),
         description: fields.text({ label: "Description" }),
+        categories: fields.multiselect({
+          label: "Interests",
+          options: [
+            { label: "Brand Identity", value: "brand-identity" },
+            { label: "Book Design", value: "book-design" },
+            { label: "Editorial Design", value: "editorial-design" },
+            { label: "Typography", value: "typography" },
+          ],
+          defaultValue: [],
+        }),
         thumbnail: fields.image({
           // This will output the images in the "public" directory
           directory: "public/work/thumbs",
