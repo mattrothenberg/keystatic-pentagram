@@ -2,6 +2,26 @@
 @tailwind components;
 @tailwind utilities;
 
+.header[data-direction="down"] {
+  @apply -top-24;
+}
+
+.header[data-direction="up"] {
+  @apply top-0;
+}
+
+body.transitioning .header {
+  @apply -top-24 !important;
+}
+
+body.transitioning {
+  overflow: hidden;
+}
+
+body:not(.transitioning) {
+  overflow: visible;
+}
+
 blockquote p:before {
   content: "“";
   display: inline;

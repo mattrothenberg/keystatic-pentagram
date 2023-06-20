@@ -2,6 +2,7 @@ import type { AppProps } from "next/app";
 import { Inter } from "next/font/google";
 import "../style.css";
 import { usePathname } from "next/navigation";
+import { Header } from "../components/header";
 
 const interFont = Inter({
   weight: "variable",
@@ -11,8 +12,11 @@ const interFont = Inter({
 export default function MyApp({ Component, pageProps }: AppProps) {
   const pathname = usePathname();
   return (
-    <div className={`container px-4 ${interFont.className}`}>
-      <Component key={pathname} {...pageProps} />
-    </div>
+    <>
+      <Header />
+      <div className={`${interFont.className}`}>
+        <Component key={pathname} {...pageProps} />
+      </div>
+    </>
   );
 }

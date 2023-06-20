@@ -91,12 +91,12 @@ export default function WorkDetail({
 
   useEffect(() => {
     console.log("Mount!", pathname, pageState);
-    document.body.style.overflow = "visible";
+    document.body.classList.remove("transitioning");
   }, []);
 
   const handleNextWorkNavigate = () => {
     // Stop the body from overflowing.
-    document.body.style.overflow = "hidden";
+    document.body.classList.add("transitioning");
     setPageState("navigating");
   };
 
@@ -116,7 +116,7 @@ export default function WorkDetail({
 
     await animateFooter(
       footerScope.current,
-      { top: 0 },
+      { top: "4rem" },
       {
         type: "spring",
         bounce: 0,
@@ -128,92 +128,96 @@ export default function WorkDetail({
   };
   return (
     <div className="relative">
-      <motion.div
-        variants={variants}
-        animate={pageState}
-        initial={false}
-        transition={{
-          duration: 0.85,
-          type: "spring",
-          bounce: 0,
-        }}
-      >
-        <WorkHeader
-          title={work.title}
-          description={work.description}
-          image={work.thumbnail}
-          categories={work.categories}
-        />{" "}
-      </motion.div>
-      <motion.div
-        className="py-8"
-        variants={variants}
-        animate={pageState}
-        initial={{
-          opacity: 0,
-        }}
-        transition={{
-          duration: 0.75,
-          type: "spring",
-          bounce: 0,
-        }}
-        onAnimationComplete={() => {
-          if (pageState === "idle") return;
-          animate();
-        }}
-      >
-        <div className="space-y-12 mt-16">
-          <DocumentRenderer
-            componentBlocks={{}}
-            renderers={{
-              block: {
-                layout: (props) => {
-                  return match(props.layout)
-                    .with([1], () => {
-                      return <div>{props.children}</div>;
-                    })
-                    .with([1, 1], () => {
-                      return (
-                        <div className="grid lg:grid-cols-2 gap-12">
+      <div className="container px-4">
+        <motion.div
+          variants={variants}
+          animate={pageState}
+          initial={false}
+          transition={{
+            duration: 0.85,
+            type: "spring",
+            bounce: 0,
+          }}
+        >
+          <WorkHeader
+            title={work.title}
+            description={work.description}
+            image={work.thumbnail}
+            categories={work.categories}
+          />{" "}
+        </motion.div>
+      </div>
+      <div className="container px-4">
+        <motion.div
+          className="py-8"
+          variants={variants}
+          animate={pageState}
+          initial={{
+            opacity: 0,
+          }}
+          transition={{
+            duration: 0.75,
+            type: "spring",
+            bounce: 0,
+          }}
+          onAnimationComplete={() => {
+            if (pageState === "idle") return;
+            animate();
+          }}
+        >
+          <div className="space-y-12 mt-16">
+            <DocumentRenderer
+              componentBlocks={{}}
+              renderers={{
+                block: {
+                  layout: (props) => {
+                    return match(props.layout)
+                      .with([1], () => {
+                        return <div>{props.children}</div>;
+                      })
+                      .with([1, 1], () => {
+                        return (
+                          <div className="grid lg:grid-cols-2 gap-12">
+                            {props.children}
+                          </div>
+                        );
+                      })
+                      .otherwise(() => null);
+                  },
+                  blockquote: (props) => {
+                    return (
+                      <div>
+                        <blockquote className="text-3xl leading-tight font-medium">
                           {props.children}
-                        </div>
-                      );
-                    })
-                    .otherwise(() => null);
-                },
-                blockquote: (props) => {
-                  return (
-                    <div>
-                      <blockquote className="text-3xl leading-tight font-medium">
-                        {props.children}
-                      </blockquote>
-                    </div>
-                  );
-                },
-                image: (props) => {
-                  console.log(props);
-                  return (
-                    <div className="space-y-2">
-                      <div className="aspect-video relative">
-                        <Image src={props.src} alt={props.alt} fill />
+                        </blockquote>
                       </div>
-                      {props?.title && (
-                        <p className="text-gray-600 text-sm">{props.title}</p>
-                      )}
-                    </div>
-                  );
+                    );
+                  },
+                  image: (props) => {
+                    console.log(props);
+                    return (
+                      <div className="space-y-2">
+                        <div className="aspect-video relative">
+                          <Image src={props.src} alt={props.alt} fill />
+                        </div>
+                        {props?.title && (
+                          <p className="text-gray-600 text-sm">{props.title}</p>
+                        )}
+                      </div>
+                    );
+                  },
                 },
-              },
-            }}
-            document={work.content}
-          />
-        </div>
-        <div className="border-t mt-12 pt-6">
-          <p className="font-normal text-lg text-red-600 select-none">
-            Next Project
-          </p>
-        </div>
-      </motion.div>
+              }}
+              document={work.content}
+            />
+          </div>
+          <div className="border-t mt-12 pt-6">
+            <p className="font-normal text-lg text-red-600 select-none">
+              Next Project
+            </p>
+          </div>
+        </motion.div>
+      </div>
       <div
         style={{
           maxHeight: 480,
@@ -221,15 +225,17 @@ export default function WorkDetail({
         }}
         ref={footerScope}
       >
-        <WorkHeader
-          truncated
-          onNavigate={handleNextWorkNavigate}
-          categories={nextWork.categories}
-          slug={nextWork.slug}
-          title={nextWork.title}
-          description={nextWork.description}
-          image={nextWork.thumbnail}
-        />
+        <div className="container px-4">
+          <WorkHeader
+            truncated
+            onNavigate={handleNextWorkNavigate}
+            categories={nextWork.categories}
+            slug={nextWork.slug}
+            title={nextWork.title}
+            description={nextWork.description}
+            image={nextWork.thumbnail}
+          />
+        </div>
       </div>
     </div>
   );
