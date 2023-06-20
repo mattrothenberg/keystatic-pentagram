@@ -9,7 +9,7 @@ export function Header() {
   return (
     <div
       data-direction={scrollDirection}
-      className={`sticky h-24 z-[initial] transition-all duration-500 bg-white header flex items-center`}
+      className={`sticky h-24 z-10 transition-all duration-500 bg-white header flex items-center`}
     >
       <div className="container px-4">
         <Link href="/">
