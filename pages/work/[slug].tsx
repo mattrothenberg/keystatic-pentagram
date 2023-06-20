@@ -1,17 +1,18 @@
 import { createReader } from "@keystatic/core/reader";
 import { DocumentRenderer } from "@keystatic/core/renderer";
+import { ArrowLeft, ArrowRight } from "@phosphor-icons/react";
 import { AnimatePresence, motion, useAnimate, useInView } from "framer-motion";
 import { GetStaticPropsContext, InferGetStaticPropsType } from "next";
 import Image from "next/image";
-import { usePathname, useRouter } from "next/navigation";
-import { omit, pick } from "radash";
-import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { omit } from "radash";
+import { useEffect, useState } from "react";
 import { match } from "ts-pattern";
-import config from "../../keystatic.config";
 import { WorkHeader } from "../../components/work-header";
 import { useScrollDirection } from "../../hooks";
-import Link from "next/link";
-import { ArrowLeft, ArrowRight } from "@phosphor-icons/react";
+import config from "../../keystatic.config";
+import { useSiteStore } from "../../store";
 
 const variants = {
   idle: {
@@ -44,25 +45,30 @@ export async function getStaticProps(context: GetStaticPropsContext) {
   const slug = context.params?.slug as string;
   const reader = createReader(process.cwd(), config);
   const works = await reader.collections.work.all();
+
   const workIndex = works.findIndex((w) => w.slug === slug);
   if (workIndex < 0) throw new Error("Work not found.");
+
   const work = works[workIndex];
   if (!work) throw new Error("Work not found");
+
   const content = await work.entry.content();
 
   const nextWorkIndex = workIndex === works.length - 1 ? 0 : workIndex + 1;
   const nextWork = works[nextWorkIndex];
 
+  const previousWorkIndex = workIndex === 0 ? works.length - 1 : workIndex - 1;
+  const previousWork = works[previousWorkIndex];
+
   return {
     props: {
+      previousWork: {
+        ...omit(previousWork.entry, ["content"]),
+        slug: previousWork.slug,
+      },
       nextWork: {
+        ...omit(nextWork.entry, ["content"]),
         slug: nextWork.slug,
-        ...pick(nextWork.entry, [
-          "description",
-          "title",
-          "thumbnail",
-          "categories",
-        ]),
       },
       work: {
         ...omit(work.entry, ["content"]),
@@ -75,21 +81,25 @@ export async function getStaticProps(context: GetStaticPropsContext) {
 export default function WorkDetail({
   work,
   nextWork,
+  previousWork,
 }: InferGetStaticPropsType<typeof getStaticProps>) {
   const [pageState, setPageState] = useState<"idle" | "navigating">("idle");
   const [footerScope, animateFooter] = useAnimate<HTMLDivElement>();
   const navigate = useRouter();
-  const pathname = usePathname();
   const footerInView = useInView(footerScope);
   const scrollDirection = useScrollDirection();
+  const setDisableGlobalTransition = useSiteStore(
+    (state) => state.setDisableGlobalTransition
+  );
 
   useEffect(() => {
-    console.log("Mount!", pathname, pageState);
+    setDisableGlobalTransition(false);
     document.body.classList.remove("transitioning");
   }, []);
 
   const handleNextWorkNavigate = () => {
     // Stop the body from overflowing.
+    setDisableGlobalTransition(true);
     document.body.classList.add("transitioning");
     setPageState("navigating");
   };
@@ -124,7 +134,11 @@ export default function WorkDetail({
     <div className="relative">
       <AnimatePresence>
         {!footerInView && scrollDirection === "down" && (
-          <WorkFloatingBar title={work.title} />
+          <WorkFloatingBar
+            previousHref={previousWork.slug}
+            nextHref={nextWork.slug}
+            title={work.title}
+          />
         )}
       </AnimatePresence>
       <div className="container px-4">
@@ -193,7 +207,6 @@ export default function WorkDetail({
                     );
                   },
                   image: (props) => {
-                    console.log(props);
                     return (
                       <div className="space-y-2">
                         <div className="aspect-video relative">
@@ -240,32 +253,39 @@ export default function WorkDetail({
   );
 }
 
-function WorkFloatingBar({ title }: { title: string }) {
+function WorkFloatingBar({
+  title,
+  previousHref,
+  nextHref,
+}: {
+  title: string;
+  previousHref: string;
+  nextHref: string;
+}) {
   return (
     <motion.div
       transition={{
-        duration: 0.85,
         type: "spring",
         bounce: 0,
       }}
       initial={{
-        y: 100,
+        y: "4rem",
       }}
       animate={{
         y: 0,
       }}
       exit={{
-        y: 100,
+        y: "4rem",
       }}
       className={`fixed bottom-0 left-0 right-0 bg-white z-10 text-center h-16`}
     >
       <div className="container px-4 h-full">
         <div className="flex items-center justify-between h-full">
-          <Link className="text-gray-400 hover:text-black" href="/">
+          <Link className="text-gray-400 hover:text-black" href={previousHref}>
             <ArrowLeft size={24} />
           </Link>
           <p className="text-lg">{title}</p>
-          <Link className="text-gray-400 hover:text-black" href="/">
+          <Link className="text-gray-400 hover:text-black" href={nextHref}>
             <ArrowRight size={24} />
           </Link>
         </div>

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export function useScrollDirection() {
   const [scrollDirection, setScrollDirection] = useState<"up" | "down" | null>(
@@ -26,4 +26,14 @@ export function useScrollDirection() {
   }, [scrollDirection]);
 
   return scrollDirection;
+}
+
+export function usePrevious<T>(newValue: T) {
+  const previousRef = useRef<T>();
+
+  useEffect(() => {
+    previousRef.current = newValue;
+  });
+
+  return previousRef.current;
 }

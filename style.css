@@ -19,7 +19,7 @@
 }
 
 body.transitioning .header {
-  @apply -top-24 !important;
+  @apply -top-24 opacity-0 !important;
 }
 
 body.transitioning {
