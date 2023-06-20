@@ -1,4 +1,5 @@
 import { omit, pick } from "radash";
+import { match } from "ts-pattern";
 import { motion, useAnimate } from "framer-motion";
 import Image from "next/image";
 import { GetStaticPropsContext, InferGetStaticPropsType } from "next";
@@ -8,6 +9,7 @@ import { ConditionalWrap } from "../../components/conditional-wrap";
 import Link from "next/link";
 import { MouseEventHandler, useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
+import { DocumentRenderer } from "@keystatic/core/renderer";
 
 const variants = {
   idle: {
@@ -124,7 +126,6 @@ export default function WorkDetail({
 
     navigate.push(nextWork.slug);
   };
-
   return (
     <div className="relative">
       <motion.div
@@ -161,10 +162,51 @@ export default function WorkDetail({
           animate();
         }}
       >
-        <div className="grid grid-cols-2 gap-8">
-          {Array.from({ length: 16 }).map((_, i) => {
-            return <div key={i} className="aspect-video bg-gray-200"></div>;
-          })}
+        <div className="space-y-12 mt-16">
+          <DocumentRenderer
+            componentBlocks={{}}
+            renderers={{
+              block: {
+                layout: (props) => {
+                  return match(props.layout)
+                    .with([1], () => {
+                      return <div>{props.children}</div>;
+                    })
+                    .with([1, 1], () => {
+                      return (
+                        <div className="grid lg:grid-cols-2 gap-12">
+                          {props.children}
+                        </div>
+                      );
+                    })
+                    .otherwise(() => null);
+                },
+                blockquote: (props) => {
+                  return (
+                    <div>
+                      <blockquote className="text-3xl leading-tight font-medium">
+                        {props.children}
+                      </blockquote>
+                    </div>
+                  );
+                },
+                image: (props) => {
+                  console.log(props);
+                  return (
+                    <div className="space-y-2">
+                      <div className="aspect-video relative">
+                        <Image src={props.src} alt={props.alt} fill />
+                      </div>
+                      {props?.title && (
+                        <p className="text-gray-600 text-sm">{props.title}</p>
+                      )}
+                    </div>
+                  );
+                },
+              },
+            }}
+            document={work.content}
+          />
         </div>
         <div className="border-t mt-12 pt-6">
           <p className="font-normal text-lg text-red-600 select-none">
@@ -174,7 +216,7 @@ export default function WorkDetail({
       </motion.div>
       <div
         style={{
-          maxHeight: 320,
+          maxHeight: 480,
           overflow: "hidden",
         }}
         ref={footerScope}

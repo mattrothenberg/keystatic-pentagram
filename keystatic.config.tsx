@@ -29,7 +29,8 @@ export default config({
         title: fields.text({ label: "Title" }),
         description: fields.text({ label: "Description" }),
         categories: fields.multiselect({
-          label: "Interests",
+          label: "Categories",
+          description: "Select the categories this work belongs to.",
           options: [
             { label: "Brand Identity", value: "brand-identity" },
             { label: "Book Design", value: "book-design" },
@@ -54,26 +55,18 @@ export default config({
         content: fields.document({
           label: "Content",
           formatting: true,
+          images: {
+            directory: "public/work/images",
+            publicPath: "/work/images",
+            schema: {
+              alt: fields.text({ label: "Alt Text" }),
+              title: fields.text({ label: "Caption" }),
+            },
+          },
           dividers: true,
           links: true,
-          layouts: [
-            [1, 1],
-            [1, 1, 1],
-            [2, 1],
-            [1, 2, 1],
-          ],
-          componentBlocks: {
-            something: component({
-              label: "Some Component",
-              preview: () => null,
-              schema: {},
-            }),
-          },
+          layouts: [[1], [1, 1]],
         }),
-        // authors: fields.array(fields.text({ label: "Name" }), {
-        //   label: "Authors",
-        //   itemLabel: (props) => props.value,
-        // }),
       },
     }),
   },

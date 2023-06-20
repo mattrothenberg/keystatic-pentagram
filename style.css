@@ -1,3 +1,23 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+blockquote p:before {
+  content: "“";
+  display: inline;
+}
+
+blockquote p:after {
+  content: "”";
+  display: inline;
+}
+
+p:empty {
+  display: none;
+}
+
+@screen lg {
+  p:empty {
+    display: block;
+  }
+}
