@@ -2,6 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
+.floating-bar[data-direction="up"] {
+  @apply -bottom-24;
+}
+
+.floating-bar[data-direction="down"] {
+  @apply bottom-0;
+}
+
 .header[data-direction="down"] {
   @apply -top-24;
 }

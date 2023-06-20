@@ -1,6 +1,9 @@
 import { motion } from "framer-motion";
 import { useScrollDirection } from "../hooks";
 import { usePathname } from "next/navigation";
+import Logo from "../public/logo.svg";
+import Image from "next/image";
+import Link from "next/link";
 
 export function Header() {
   const scrollDirection = useScrollDirection();
@@ -13,9 +16,13 @@ export function Header() {
       animate={{ opacity: 1 }}
       initial={{ opacity: 0 }}
       data-direction={scrollDirection}
-      className={`sticky h-16 transition-all duration-500 bg-white z-10 header`}
+      className={`sticky h-24 transition-all duration-500 bg-white z-10 header flex items-center`}
     >
-      <div className="p-5 font-bold">Disappearing Header</div>
+      <div className="container px-4">
+        <Link href="/">
+          <Image alt="Logo" src={Logo} width={210} />
+        </Link>
+      </div>
     </motion.div>
   );
 }

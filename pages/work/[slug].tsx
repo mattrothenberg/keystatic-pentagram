@@ -1,15 +1,15 @@
-import { omit, pick } from "radash";
-import { match } from "ts-pattern";
-import { motion, useAnimate } from "framer-motion";
-import Image from "next/image";
-import { GetStaticPropsContext, InferGetStaticPropsType } from "next";
 import { createReader } from "@keystatic/core/reader";
-import config from "../../keystatic.config";
-import { ConditionalWrap } from "../../components/conditional-wrap";
-import Link from "next/link";
-import { MouseEventHandler, useEffect, useState } from "react";
-import { useRouter, usePathname } from "next/navigation";
 import { DocumentRenderer } from "@keystatic/core/renderer";
+import { AnimatePresence, motion, useAnimate, useInView } from "framer-motion";
+import { GetStaticPropsContext, InferGetStaticPropsType } from "next";
+import Image from "next/image";
+import { usePathname, useRouter } from "next/navigation";
+import { omit, pick } from "radash";
+import { useEffect, useRef, useState } from "react";
+import { match } from "ts-pattern";
+import config from "../../keystatic.config";
+import { WorkHeader } from "../../components/work-header";
+import { useScrollDirection } from "../../hooks";
 
 const variants = {
   idle: {
@@ -36,16 +36,6 @@ export async function getStaticPaths() {
     fallback: false,
     paths,
   };
-}
-
-function categoryFormatter(category: string) {
-  // the category will come in like "brand-identity" and we want it to be "Brand Identity".
-  return category
-    .split("-")
-    .map((word) => {
-      return word[0].toUpperCase() + word.slice(1);
-    })
-    .join(" ");
 }
 
 export async function getStaticProps(context: GetStaticPropsContext) {
@@ -88,6 +78,8 @@ export default function WorkDetail({
   const [footerScope, animateFooter] = useAnimate<HTMLDivElement>();
   const navigate = useRouter();
   const pathname = usePathname();
+  const footerInView = useInView(footerScope);
+  const scrollDirection = useScrollDirection();
 
   useEffect(() => {
     console.log("Mount!", pathname, pageState);
@@ -116,7 +108,7 @@ export default function WorkDetail({
 
     await animateFooter(
       footerScope.current,
-      { top: "4rem" },
+      { top: "6rem" },
       {
         type: "spring",
         bounce: 0,
@@ -128,6 +120,9 @@ export default function WorkDetail({
   };
   return (
     <div className="relative">
+      <AnimatePresence>
+        {!footerInView && scrollDirection === "down" && <WorkFloatingBar />}
+      </AnimatePresence>
       <div className="container px-4">
         <motion.div
           variants={variants}
@@ -241,88 +236,26 @@ export default function WorkDetail({
   );
 }
 
-type DefaultWorkHeader = {
-  truncated?: false;
-  slug?: never;
-  onNavigate?: never;
-};
-
-type TruncatedWorkHeader = {
-  truncated: true;
-  slug: string;
-  onNavigate: () => void;
-};
-
-type WorkHeaderProps = {
-  title: string;
-  description: string;
-  image: string;
-  categories: readonly string[];
-} & (TruncatedWorkHeader | DefaultWorkHeader);
-
-function WorkHeader({
-  title,
-  description,
-  image,
-  slug = "",
-  truncated = false,
-  categories,
-  onNavigate = () => {},
-}: WorkHeaderProps) {
-  const [animating, setAnimating] = useState(false);
-  const handleClick: MouseEventHandler<HTMLAnchorElement> = (e) => {
-    // Check if user is holding the command key. Allow them to open the link in a new tab.
-    if (e.metaKey) {
-      return;
-    }
-    setAnimating(true);
-    e.preventDefault();
-    onNavigate();
-  };
-
+function WorkFloatingBar() {
   return (
-    <ConditionalWrap
-      condition={truncated && Boolean(slug)}
-      wrap={(children) => {
-        return (
-          <Link onClick={handleClick} href={slug}>
-            {children}
-          </Link>
-        );
+    <motion.div
+      transition={{
+        duration: 0.85,
+        type: "spring",
+        bounce: 0,
       }}
+      initial={{
+        y: 100,
+      }}
+      animate={{
+        y: 0,
+      }}
+      exit={{
+        y: 100,
+      }}
+      className={`fixed bottom-0 left-0 right-0 bg-white z-10 text-center py-6`}
     >
-      <div className="space-y-4">
-        <div className="grid lg:grid-cols-2 pb-8 pt-16">
-          <div>
-            <h1 aria-hidden={truncated} className="text-4xl font-semibold">
-              {title}
-            </h1>
-            <p className="text-gray-500 text-xl mt-2">
-              {categories
-                .map((category) => {
-                  return categoryFormatter(category);
-                })
-                .join(", ")}
-            </p>
-          </div>
-          <div>
-            <p className="text-2xl font-medium">{description}</p>
-          </div>
-        </div>
-        <div
-          className={`aspect-video bg-gray-200 relative overflow-hidden ${
-            truncated && !animating ? "group" : ""
-          }`}
-        >
-          <Image
-            priority={!truncated}
-            className="object-cover transform group-hover:scale-125 transition-transform will-change-transform duration-500"
-            alt={title}
-            src={image}
-            fill
-          />
-        </div>
-      </div>
-    </ConditionalWrap>
+      Floating bar
+    </motion.div>
   );
 }
