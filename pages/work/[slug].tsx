@@ -10,6 +10,8 @@ import { match } from "ts-pattern";
 import config from "../../keystatic.config";
 import { WorkHeader } from "../../components/work-header";
 import { useScrollDirection } from "../../hooks";
+import Link from "next/link";
+import { ArrowLeft, ArrowRight } from "@phosphor-icons/react";
 
 const variants = {
   idle: {
@@ -121,7 +123,9 @@ export default function WorkDetail({
   return (
     <div className="relative">
       <AnimatePresence>
-        {!footerInView && scrollDirection === "down" && <WorkFloatingBar />}
+        {!footerInView && scrollDirection === "down" && (
+          <WorkFloatingBar title={work.title} />
+        )}
       </AnimatePresence>
       <div className="container px-4">
         <motion.div
@@ -236,7 +240,7 @@ export default function WorkDetail({
   );
 }
 
-function WorkFloatingBar() {
+function WorkFloatingBar({ title }: { title: string }) {
   return (
     <motion.div
       transition={{
@@ -253,9 +257,19 @@ function WorkFloatingBar() {
       exit={{
         y: 100,
       }}
-      className={`fixed bottom-0 left-0 right-0 bg-white z-10 text-center py-6`}
+      className={`fixed bottom-0 left-0 right-0 bg-white z-10 text-center h-16`}
     >
-      Floating bar
+      <div className="container px-4 h-full">
+        <div className="flex items-center justify-between h-full">
+          <Link className="text-gray-400 hover:text-black" href="/">
+            <ArrowLeft size={24} />
+          </Link>
+          <p className="text-lg">{title}</p>
+          <Link className="text-gray-400 hover:text-black" href="/">
+            <ArrowRight size={24} />
+          </Link>
+        </div>
+      </div>
     </motion.div>
   );
 }
