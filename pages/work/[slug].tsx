@@ -208,12 +208,14 @@ export default function WorkDetail({
                   },
                   image: (props) => {
                     return (
-                      <div className="space-y-2">
+                      <div className="space-y-3">
                         <div className="aspect-video relative">
                           <Image src={props.src} alt={props.alt} fill />
                         </div>
                         {props?.title && (
-                          <p className="text-gray-600 text-sm">{props.title}</p>
+                          <p className="text-gray-500 text-base">
+                            {props.title}
+                          </p>
                         )}
                       </div>
                     );

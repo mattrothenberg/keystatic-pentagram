@@ -54,7 +54,7 @@ export function WorkHeader({
         );
       }}
     >
-      <div className="space-y-4">
+      <div className={`space-y-4 ${truncated && !animating ? "group" : ""}`}>
         <div className="grid lg:grid-cols-2 pb-8 pt-16">
           <div>
             <h1 aria-hidden={truncated} className="text-4xl font-semibold">
@@ -72,11 +72,7 @@ export function WorkHeader({
             <p className="text-2xl font-medium">{description}</p>
           </div>
         </div>
-        <div
-          className={`aspect-video bg-gray-200 relative overflow-hidden ${
-            truncated && !animating ? "group" : ""
-          }`}
-        >
+        <div className={`aspect-video bg-gray-200 relative overflow-hidden`}>
           <Image
             priority={!truncated}
             className="object-cover transform group-hover:scale-125 transition-transform will-change-transform duration-500"
